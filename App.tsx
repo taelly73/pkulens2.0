@@ -3,6 +3,7 @@ import { Navbar } from './components/Navbar';
 import { Home } from './views/Home';
 import { Interaction } from './views/Interaction';
 import { MyActivities } from './views/MyActivities';
+import { ActivityDetail } from './views/ActivityDetail';
 import { GeminiAssistant } from './components/GeminiAssistant';
 import { ViewState, User, Activity } from './types';
 import { MOCK_USER, ACTIVITIES } from './constants';
@@ -12,9 +13,16 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>(ViewState.HOME);
   const [user, setUser] = useState<User>(MOCK_USER);
   const [activities, setActivities] = useState<Activity[]>(ACTIVITIES);
+  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
   
   // Detect if user is International Student to toggle language by default
   const [isEnglish, setIsEnglish] = useState(user.role === 'International Student');
+
+  const handleViewActivityDetail = (id: string) => {
+    setSelectedActivityId(id);
+    setCurrentView(ViewState.ACTIVITY_DETAIL);
+    window.scrollTo(0, 0); // Scroll to top
+  };
 
   const handleJoinActivity = (id: string) => {
     // Optimistic update
@@ -30,6 +38,8 @@ const App: React.FC = () => {
     setActivities(prev => prev.map(a => 
       a.id === id ? { ...a, registeredCount: a.registeredCount + 1 } : a
     ));
+
+    alert(isEnglish ? "Registration Successful!" : "报名成功！");
   };
 
   const handleCompleteActivity = (id: string) => {
@@ -65,7 +75,7 @@ const App: React.FC = () => {
           activities={activities} 
           user={user} 
           isEnglish={isEnglish} 
-          onJoinActivity={handleJoinActivity}
+          onViewDetail={handleViewActivityDetail}
           setView={setCurrentView}
         />;
       case ViewState.INTERACTION:
@@ -78,21 +88,24 @@ const App: React.FC = () => {
           onCompleteActivity={handleCompleteActivity}
           onRedeemReward={handleRedeemReward}
         />;
-      case ViewState.ACTIVITIES:
-         // Reusing Home with a filter could be better, but for now redirect Home
-         return <Home 
-          activities={activities} 
-          user={user} 
+      case ViewState.ACTIVITY_DETAIL:
+        const activity = activities.find(a => a.id === selectedActivityId);
+        // Fallback to Home if ID not found
+        if (!activity) return <Home activities={activities} user={user} isEnglish={isEnglish} onViewDetail={handleViewActivityDetail} setView={setCurrentView} />;
+        
+        return <ActivityDetail 
+          activity={activity} 
           isEnglish={isEnglish} 
-          onJoinActivity={handleJoinActivity}
-          setView={setCurrentView}
+          isJoined={user.joinedActivities.includes(activity.id)}
+          onJoin={handleJoinActivity}
+          onBack={() => setCurrentView(ViewState.HOME)}
         />;
       default:
         return <Home 
           activities={activities} 
           user={user} 
           isEnglish={isEnglish} 
-          onJoinActivity={handleJoinActivity}
+          onViewDetail={handleViewActivityDetail}
           setView={setCurrentView}
         />;
     }

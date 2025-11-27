@@ -26,6 +26,7 @@ export interface Activity {
   description: string;
   descriptionEn?: string;
   image: string;
+  externalLink?: string; // Added field for registration link
   tags: string[];
   registeredCount: number;
   maxCapacity: number;
@@ -66,7 +67,8 @@ export enum ViewState {
   HOME = 'HOME',
   ACTIVITIES = 'ACTIVITIES',
   INTERACTION = 'INTERACTION',
-  MY_ACTIVITIES = 'MY_ACTIVITIES'
+  MY_ACTIVITIES = 'MY_ACTIVITIES',
+  ACTIVITY_DETAIL = 'ACTIVITY_DETAIL'
 }
 
 export interface Comment {

@@ -8,11 +8,11 @@ interface HomeProps {
   activities: Activity[];
   user: User;
   isEnglish: boolean;
-  onJoinActivity: (id: string) => void;
+  onViewDetail: (id: string) => void;
   setView: (view: any) => void;
 }
 
-export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinActivity, setView }) => {
+export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onViewDetail, setView }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Helper to filter safely
@@ -39,7 +39,7 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
     { label: isEnglish ? 'Volunteer' : '志愿服务', icon: Heart, color: 'bg-red-50 text-red-600' },
   ];
 
-  // Placeholder activity to prevent crashes if data is empty or sparse
+  // Placeholder activity to prevent crashes
   const placeholderActivity: Activity = {
     id: 'placeholder',
     title: isEnglish ? 'Coming Soon' : '虚位以待',
@@ -55,8 +55,6 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
     location: 'PKU'
   };
 
-  // Safely select Featured and Trending activities
-  // Use fallbacks (||) to ensure we always have a valid object to render
   const aiPick = activities[0] || placeholderActivity;
   const trendingPick = activities[3] || activities[1] || aiPick;
 
@@ -92,7 +90,7 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
                 <Calendar className="w-4 h-4 text-pku-red" />
                 {isEnglish ? 'My Schedule' : '我的日历'}
               </h3>
-              <button className="text-xs text-pku-red hover:underline">{isEnglish ? 'View All' : '查看全部'}</button>
+              <button className="text-xs text-pku-red hover:underline" onClick={() => setView('MY_ACTIVITIES')}>{isEnglish ? 'View All' : '查看全部'}</button>
             </div>
             <div className="grid grid-cols-7 gap-1 mb-2 text-center">
               {currentWeek.map((d, i) => (
@@ -108,10 +106,6 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
                   </div>
                 </div>
               ))}
-            </div>
-            <div className="text-xs text-gray-500 bg-red-50 p-2 rounded-lg border border-red-100 flex items-center gap-2">
-               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-               {isEnglish ? '1 conflict detected on Wed 22' : '周三 (22日) 检测到 1 个时间冲突'}
             </div>
           </div>
         </div>
@@ -129,7 +123,10 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* AI Pick */}
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100 relative overflow-hidden group hover:shadow-lg transition-all cursor-pointer">
+            <div 
+              onClick={() => onViewDetail(aiPick.id)}
+              className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100 relative overflow-hidden group hover:shadow-lg transition-all cursor-pointer"
+            >
               <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                 <Sparkles className="w-24 h-24" />
               </div>
@@ -142,7 +139,10 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
             </div>
 
             {/* Trending */}
-            <div className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-2xl border border-orange-100 relative overflow-hidden group hover:shadow-lg transition-all cursor-pointer">
+            <div 
+              onClick={() => onViewDetail(trendingPick.id)}
+              className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-2xl border border-orange-100 relative overflow-hidden group hover:shadow-lg transition-all cursor-pointer"
+            >
               <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                 <TrendingUp className="w-24 h-24" />
               </div>
@@ -170,7 +170,7 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
           </div>
         </div>
 
-        {/* 3. Category Grid / Activity Facets (Restored) */}
+        {/* 3. Category Grid */}
         <div>
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
              <Layers className="w-5 h-5 text-pku-red" />
@@ -200,14 +200,18 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
             
             <div className="space-y-6">
               {weekActivities.length > 0 ? weekActivities.map(activity => (
-                <div key={activity.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex gap-4 hover:shadow-md transition-all">
+                <div 
+                  key={activity.id} 
+                  className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex gap-4 hover:shadow-md transition-all cursor-pointer group"
+                  onClick={() => onViewDetail(activity.id)}
+                >
                    <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
-                     <img src={activity.image} alt={activity.title} className="w-full h-full object-cover" />
+                     <img src={activity.image} alt={activity.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                    </div>
                    <div className="flex-grow flex flex-col justify-between">
                      <div>
                        <div className="flex justify-between items-start">
-                         <h4 className="font-bold text-gray-900 line-clamp-1">{isEnglish ? (activity.titleEn || activity.title) : activity.title}</h4>
+                         <h4 className="font-bold text-gray-900 line-clamp-1 group-hover:text-pku-red">{isEnglish ? (activity.titleEn || activity.title) : activity.title}</h4>
                          <span className="text-xs font-medium text-pku-red bg-red-50 px-2 py-0.5 rounded">{activity.category}</span>
                        </div>
                        <div className="text-sm text-gray-500 mt-1 flex items-center gap-2">
@@ -219,16 +223,14 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
                      </div>
                      <div className="flex justify-end mt-2">
                        <button 
-                        onClick={() => onJoinActivity(activity.id)}
-                        disabled={user.joinedActivities.includes(activity.id)}
                         className={`text-xs px-4 py-1.5 rounded-full font-medium transition-colors ${
                           user.joinedActivities.includes(activity.id) 
-                            ? 'bg-gray-100 text-gray-400' 
+                            ? 'bg-green-50 text-green-600' 
                             : 'bg-pku-red text-white hover:bg-pku-light'
                         }`}>
                           {user.joinedActivities.includes(activity.id) 
-                            ? (isEnglish ? 'Joined' : '已报名') 
-                            : (isEnglish ? 'Join' : '立即报名')}
+                            ? (isEnglish ? 'Registered' : '已报名') 
+                            : (isEnglish ? 'View Details' : '查看详情')}
                        </button>
                      </div>
                    </div>
