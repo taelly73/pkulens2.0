@@ -1,4 +1,4 @@
-import { Activity, ActivityCategory, UserRole, User, Review, Reward } from './types';
+import { Activity, ActivityCategory, UserRole, User, Review, Reward, Post } from './types';
 
 // ==========================================
 // 核心数据区：使用反引号包裹 Excel 数据
@@ -163,6 +163,32 @@ export const MOCK_USER: User = {
   points: 340,
   reviews: MOCK_REVIEWS
 };
+
+// Initial Mock Posts for the feed
+export const MOCK_POSTS: Post[] = [
+  {
+    id: 'p1',
+    user: 'Li Si',
+    userRole: 'Undergraduate',
+    content: 'Anyone going to the AI lecture this afternoon? Looking for someone to walk with from the library.',
+    tag: 'Team Up',
+    timestamp: '10 mins ago',
+    likes: 12,
+    commentsCount: 3,
+    isLiked: false
+  },
+  {
+    id: 'p2',
+    user: 'Wang Wu',
+    userRole: 'Graduate',
+    content: 'Found a blue umbrella in Classroom 302. Left it at the front desk.',
+    tag: 'Lost & Found',
+    timestamp: '1 hour ago',
+    likes: 5,
+    commentsCount: 1,
+    isLiked: true
+  }
+];
 
 export const MOCK_COMMENTS = [
   { id: '1', user: 'User123', content: "Is the calligraphy workshop beginner friendly?", timestamp: "2h ago", likes: 5 },

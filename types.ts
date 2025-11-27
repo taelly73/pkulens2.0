@@ -71,6 +71,23 @@ export enum ViewState {
   ACTIVITY_DETAIL = 'ACTIVITY_DETAIL'
 }
 
+// Updated interaction types
+export type PostTag = 'Discussion' | 'Team Up' | 'Lost & Found' | 'Help';
+
+export interface Post {
+  id: string;
+  user: string;
+  userRole?: string;
+  avatar?: string;
+  content: string;
+  image?: string;
+  tag: PostTag;
+  timestamp: string;
+  likes: number;
+  commentsCount: number;
+  isLiked?: boolean;
+}
+
 export interface Comment {
   id: string;
   user: string;
