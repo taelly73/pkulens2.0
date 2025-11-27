@@ -15,7 +15,7 @@ interface HomeProps {
 export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinActivity, setView }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Helper to filter
+  // Helper to filter safely
   const todayActivities = activities.slice(0, 2);
   const weekActivities = activities.slice(0, 4);
 
@@ -38,6 +38,27 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
     { label: isEnglish ? 'Career' : '职业发展', icon: Briefcase, color: 'bg-slate-50 text-slate-600' },
     { label: isEnglish ? 'Volunteer' : '志愿服务', icon: Heart, color: 'bg-red-50 text-red-600' },
   ];
+
+  // Placeholder activity to prevent crashes if data is empty or sparse
+  const placeholderActivity: Activity = {
+    id: 'placeholder',
+    title: isEnglish ? 'Coming Soon' : '虚位以待',
+    description: isEnglish ? 'More events are being added.' : '更多精彩活动即将上线。',
+    category: ActivityCategory.SOCIAL,
+    image: 'https://picsum.photos/400/250?grayscale',
+    tags: [],
+    registeredCount: 0,
+    maxCapacity: 0,
+    organizer: 'PKU Lens',
+    date: 'TBD',
+    time: 'TBD',
+    location: 'PKU'
+  };
+
+  // Safely select Featured and Trending activities
+  // Use fallbacks (||) to ensure we always have a valid object to render
+  const aiPick = activities[0] || placeholderActivity;
+  const trendingPick = activities[3] || activities[1] || aiPick;
 
   return (
     <div className="pb-24 pt-16 md:pt-20 bg-gray-50 min-h-screen">
@@ -113,8 +134,8 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
                 <Sparkles className="w-24 h-24" />
               </div>
               <span className="bg-indigo-600 text-white text-xs px-2 py-1 rounded font-bold mb-3 inline-block">AI Pick</span>
-              <h4 className="font-bold text-lg text-indigo-900 mb-1">{activities[0].title}</h4>
-              <p className="text-sm text-indigo-700 mb-4 line-clamp-2">{activities[0].description}</p>
+              <h4 className="font-bold text-lg text-indigo-900 mb-1 line-clamp-1">{aiPick.title}</h4>
+              <p className="text-sm text-indigo-700 mb-4 line-clamp-2">{aiPick.description || 'No description available'}</p>
               <button className="text-indigo-600 text-sm font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
                 {isEnglish ? 'Check Details' : '查看详情'} <ArrowRight className="w-4 h-4" />
               </button>
@@ -126,8 +147,12 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
                 <TrendingUp className="w-24 h-24" />
               </div>
               <span className="bg-orange-600 text-white text-xs px-2 py-1 rounded font-bold mb-3 inline-block">Hot 🔥</span>
-              <h4 className="font-bold text-lg text-orange-900 mb-1">{activities[3].title}</h4>
-              <p className="text-sm text-orange-700 mb-4 line-clamp-2">{activities[3].registeredCount} students joined this career fair.</p>
+              <h4 className="font-bold text-lg text-orange-900 mb-1 line-clamp-1">{trendingPick.title}</h4>
+              <p className="text-sm text-orange-700 mb-4 line-clamp-2">
+                {trendingPick.registeredCount > 0 
+                  ? `${trendingPick.registeredCount} students joined this activity.` 
+                  : (isEnglish ? 'Be the first to join!' : '快来抢先报名！')}
+              </p>
               <button className="text-orange-600 text-sm font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
                 {isEnglish ? 'Join Now' : '立即参与'} <ArrowRight className="w-4 h-4" />
               </button>
@@ -174,7 +199,7 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
             </div>
             
             <div className="space-y-6">
-              {weekActivities.map(activity => (
+              {weekActivities.length > 0 ? weekActivities.map(activity => (
                 <div key={activity.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex gap-4 hover:shadow-md transition-all">
                    <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
                      <img src={activity.image} alt={activity.title} className="w-full h-full object-cover" />
@@ -208,7 +233,11 @@ export const Home: React.FC<HomeProps> = ({ activities, user, isEnglish, onJoinA
                      </div>
                    </div>
                 </div>
-              ))}
+              )) : (
+                <div className="text-center py-10 text-gray-500 bg-white rounded-xl border border-dashed border-gray-200">
+                  {isEnglish ? 'No activities scheduled for this week.' : '本周暂无活动安排。'}
+                </div>
+              )}
             </div>
           </div>
           
